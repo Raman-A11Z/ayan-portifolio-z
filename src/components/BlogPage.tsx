@@ -64,7 +64,25 @@ export const BlogPage: React.FC<BlogPageProps> = ({ currentTheme }) => {
         description="Read technical insights on Core Web Vitals speed optimization, custom React web design, 3D WebGL experiences, and SEO strategy by founder Ayan."
       />
 
-      {/* Header Banner */}
+      {isArticleView && !selectedPost && (
+        <div className="text-center space-y-6 py-20">
+          <h1 className="text-4xl font-extrabold text-white">Article Not Found</h1>
+          <p className="text-slate-300 text-base max-w-md mx-auto">
+            The blog article you're looking for doesn't exist or has been removed.
+          </p>
+          <button
+            onClick={() => navigate('/blog')}
+            className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-amber-400 hover:bg-amber-300 text-black font-bold text-sm font-mono"
+          >
+            <ArrowLeft className="w-4 h-4" />
+            <span>Back to All Articles</span>
+          </button>
+        </div>
+      )}
+
+      {!isArticleView && (
+        <>
+          {/* Header Banner */}
       <div className="text-center space-y-4 max-w-3xl mx-auto">
         <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white/5 border border-white/15 backdrop-blur-xl">
           <BookOpen className="w-4 h-4 text-cyan-300" />
@@ -262,6 +280,9 @@ export const BlogPage: React.FC<BlogPageProps> = ({ currentTheme }) => {
             </button>
           </div>
         </div>
+      )}
+
+        </>
       )}
 
     </div>
