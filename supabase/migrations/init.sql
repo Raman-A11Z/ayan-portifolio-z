@@ -333,15 +333,15 @@ WHERE NOT EXISTS (SELECT 1 FROM public.website_settings);
 -- ==================================================================
 -- Admin seeding: mark profile of given email as is_admin = true
 -- Replace the email(s) below or run this block after the user signs up.
--- Provided admin email from user: 19dragongo.g@gmail.com
+-- Provided admin email from user: kumarraman26520@gmail.com
 
 -- If a user with that email already exists in auth.users, set or insert a profile with is_admin=true
 DO $$
 BEGIN
-  IF EXISTS (SELECT 1 FROM auth.users WHERE email = '19dragongo.g@gmail.com') THEN
+  IF EXISTS (SELECT 1 FROM auth.users WHERE email = 'kumarraman26520@gmail.com') THEN
     -- Upsert into profiles
     INSERT INTO public.profiles (id, full_name, is_admin, created_at)
-    SELECT id, (raw_user_meta->>'full_name')::text, true, now() FROM auth.users WHERE email = '19dragongo.g@gmail.com'
+    SELECT id, (raw_user_meta->>'full_name')::text, true, now() FROM auth.users WHERE email = 'kumarraman26520@gmail.com'
     ON CONFLICT (id) DO UPDATE SET is_admin = true;
   END IF;
 END$$;
