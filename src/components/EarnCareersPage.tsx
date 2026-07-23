@@ -570,18 +570,6 @@ export const EarnCareersPage: React.FC<EarnCareersPageProps> = ({ currentTheme }
                     </p>
                   </div>
 
-                  {(activeFormType === 'job' || activeFormType === 'task') && (
-                    <div className="p-3.5 rounded-xl bg-amber-500/10 border border-amber-500/30 text-[11px] text-amber-200 font-mono space-y-1">
-                      <div className="font-bold flex items-center gap-1.5 text-amber-300">
-                        <AlertCircle className="w-4 h-4 text-amber-400 shrink-0" />
-                        <span>Unpaid / Portfolio Role Notice</span>
-                      </div>
-                      <p className="text-slate-300 font-light leading-relaxed">
-                        Please note: Job positions and article writing submissions are voluntary portfolio & learning roles. No cash stipend or direct payment is provided for these applications. Selected candidates receive publication author credits and experience certificates.
-                      </p>
-                    </div>
-                  )}
-
                   <form onSubmit={handleSubmitForm} className="space-y-4 text-left">
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                       <div className="space-y-1">
