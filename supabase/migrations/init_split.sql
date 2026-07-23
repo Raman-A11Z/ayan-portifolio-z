@@ -343,7 +343,7 @@ WHERE NOT EXISTS (SELECT 1 FROM public.website_settings);
 
 -- Example (run after the auth user is created):
 -- INSERT INTO public.profiles (id, full_name, is_admin, created_at)
--- SELECT id, COALESCE(raw_user_meta->>'full_name', user_metadata->>'full_name', email), true, now() FROM auth.users WHERE email = '19dragongo.g@gmail.com'
+-- SELECT id, COALESCE(raw_user_meta->>'full_name', user_metadata->>'full_name', email), true, now() FROM auth.users WHERE email = 'kumarraman26520@gmail.com'
 -- ON CONFLICT (id) DO UPDATE SET is_admin = true;
 
 -- ==================================================================
