@@ -610,7 +610,7 @@ export const EarnCareersPage: React.FC<EarnCareersPageProps> = ({ currentTheme }
                     </div>
 
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                      <div className="space-y-1">
+                      <div className={activeFormType === 'referral' ? '' : 'sm:col-span-2'}>
                         <label className="text-[11px] font-mono text-slate-300 block">Phone / WhatsApp Number *</label>
                         <input
                           type="tel"
@@ -622,19 +622,21 @@ export const EarnCareersPage: React.FC<EarnCareersPageProps> = ({ currentTheme }
                         />
                       </div>
 
-                      <div className="space-y-1">
-                        <label className="text-[11px] font-mono text-slate-300 block font-bold">
-                          {activeFormType === 'referral' ? 'UPI ID / Bank Detail for 20% Payout *' : 'UPI ID / Payment Method (Optional)'}
-                        </label>
-                        <input
-                          type="text"
-                          required={activeFormType === 'referral'}
-                          value={formData.upiId}
-                          onChange={(e) => setFormData({ ...formData, upiId: e.target.value })}
-                          placeholder={activeFormType === 'referral' ? 'e.g. rahul@upi' : 'Optional / N/A for unpaid role'}
-                          className="w-full px-3.5 py-2.5 rounded-xl bg-white/5 border border-white/10 text-slate-200 text-xs focus:outline-none focus:border-amber-400"
-                        />
-                      </div>
+                      {activeFormType === 'referral' && (
+                        <div className="space-y-1">
+                          <label className="text-[11px] font-mono text-slate-300 block font-bold">
+                            UPI ID / Bank Detail for 20% Payout *
+                          </label>
+                          <input
+                            type="text"
+                            required
+                            value={formData.upiId}
+                            onChange={(e) => setFormData({ ...formData, upiId: e.target.value })}
+                            placeholder="e.g. rahul@upi"
+                            className="w-full px-3.5 py-2.5 rounded-xl bg-white/5 border border-white/10 text-slate-200 text-xs focus:outline-none focus:border-amber-400"
+                          />
+                        </div>
+                      )}
                     </div>
 
                     {activeFormType === 'referral' && (
@@ -712,13 +714,27 @@ export const EarnCareersPage: React.FC<EarnCareersPageProps> = ({ currentTheme }
                   </div>
 
                   <div className="p-4 rounded-xl bg-white/5 border border-white/10 text-left text-xs text-slate-300 space-y-1">
-                    <div className="flex items-center gap-2 text-emerald-400 font-bold font-mono">
-                      <ShieldCheck className="w-4 h-4" />
-                      <span>Saved & Prepared for Verification</span>
-                    </div>
-                    <p className="text-[11px] text-slate-400">
-                      Payout UPI ID: <span className="text-white font-mono">{formData.upiId}</span>. Founder Ayan will review your entry and issue payout upon verification.
-                    </p>
+                    {activeFormType === 'referral' ? (
+                      <>
+                        <div className="flex items-center gap-2 text-emerald-400 font-bold font-mono">
+                          <ShieldCheck className="w-4 h-4" />
+                          <span>Saved & Prepared for Verification</span>
+                        </div>
+                        <p className="text-[11px] text-slate-400">
+                          Payout UPI ID: <span className="text-white font-mono">{formData.upiId}</span>. Founder Ayan will review your entry and issue payout upon verification.
+                        </p>
+                      </>
+                    ) : (
+                      <>
+                        <div className="flex items-center gap-2 text-cyan-400 font-bold font-mono">
+                          <ShieldCheck className="w-4 h-4" />
+                          <span>Application Submitted Successfully</span>
+                        </div>
+                        <p className="text-[11px] text-slate-400">
+                          Founder Ayan will review your application. Selected candidates will be notified via email with author credits and experience certificate.
+                        </p>
+                      </>
+                    )}
                   </div>
 
                   <div className="pt-2 flex justify-center gap-3">
