@@ -21,9 +21,17 @@ CREATE TABLE IF NOT EXISTS public.profiles (
 -- Create or update profile when a user registers (helper function)
 CREATE OR REPLACE FUNCTION public.handle_new_auth_user()
 RETURNS trigger AS $$
+DECLARE
+  _full_name text;
 BEGIN
+  _full_name := COALESCE(
+    NEW.raw_user_meta_data->>'full_name',
+    NEW.raw_app_meta_data->>'full_name',
+    NEW.email
+  );
+
   INSERT INTO public.profiles (id, full_name, created_at)
-  VALUES (NEW.id, NEW.raw_user_meta->>'full_name', now())
+  VALUES (NEW.id, _full_name, now())
   ON CONFLICT (id) DO NOTHING;
   RETURN NEW;
 END;
@@ -321,7 +329,7 @@ CREATE POLICY "media_manage_admin" ON public.media FOR ALL USING (public.is_admi
 -- Reviews: public select where approved; users can insert (pending); admin can manage
 CREATE POLICY "reviews_select_public" ON public.reviews FOR SELECT USING (status = 'approved' OR public.is_admin());
 CREATE POLICY "reviews_insert_any" ON public.reviews FOR INSERT WITH CHECK (true);
-CREATE POLICY "reviews_manage_admin" ON public.reviews FOR UPDATE, DELETE USING (public.is_admin()) WITH CHECK (public.is_admin());
+CREATE POLICY "reviews_manage_admin" ON public.reviews FOR ALL USING (public.is_admin()) WITH CHECK (public.is_admin());
 
 -- ==================================================================
 -- Initial seed for website_settings (optional)
@@ -341,7 +349,12 @@ BEGIN
   IF EXISTS (SELECT 1 FROM auth.users WHERE email = 'kumarraman26520@gmail.com') THEN
     -- Upsert into profiles
     INSERT INTO public.profiles (id, full_name, is_admin, created_at)
-    SELECT id, (raw_user_meta->>'full_name')::text, true, now() FROM auth.users WHERE email = 'kumarraman26520@gmail.com'
+    SELECT id,
+           COALESCE(raw_user_meta_data->>'full_name', raw_app_meta_data->>'full_name', email)::text,
+           true,
+           now()
+    FROM auth.users
+    WHERE email = 'kumarraman26520@gmail.com'
     ON CONFLICT (id) DO UPDATE SET is_admin = true;
   END IF;
 END$$;

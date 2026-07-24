@@ -30,8 +30,12 @@ RETURNS trigger AS $$
 DECLARE
   _full_name text;
 BEGIN
-  -- Prefer raw_user_meta (older Supabase), fall back to user_metadata, then email
-  _full_name := COALESCE(NEW.raw_user_meta->>'full_name', NEW.user_metadata->>'full_name', NEW.email);
+  -- Prefer current Supabase auth metadata fields, then fall back to email.
+  _full_name := COALESCE(
+    NEW.raw_user_meta_data->>'full_name',
+    NEW.raw_app_meta_data->>'full_name',
+    NEW.email
+  );
   INSERT INTO public.profiles (id, full_name, created_at)
   VALUES (NEW.id, _full_name, now())
   ON CONFLICT (id) DO NOTHING;
@@ -324,7 +328,7 @@ CREATE POLICY IF NOT EXISTS media_manage_admin ON public.media FOR ALL USING (pu
 -- Reviews public select where approved, insert allowed
 CREATE POLICY IF NOT EXISTS reviews_select_public ON public.reviews FOR SELECT USING (status = 'approved' OR public.is_admin());
 CREATE POLICY IF NOT EXISTS reviews_insert_any ON public.reviews FOR INSERT WITH CHECK (true);
-CREATE POLICY IF NOT EXISTS reviews_manage_admin ON public.reviews FOR UPDATE, DELETE USING (public.is_admin()) WITH CHECK (public.is_admin());
+CREATE POLICY IF NOT EXISTS reviews_manage_admin ON public.reviews FOR ALL USING (public.is_admin()) WITH CHECK (public.is_admin());
 
 -- ==================================================================
 -- STEP 9: Seed basic website settings (safe, idempotent)
@@ -343,7 +347,12 @@ WHERE NOT EXISTS (SELECT 1 FROM public.website_settings);
 
 -- Example (run after the auth user is created):
 -- INSERT INTO public.profiles (id, full_name, is_admin, created_at)
--- SELECT id, COALESCE(raw_user_meta->>'full_name', user_metadata->>'full_name', email), true, now() FROM auth.users WHERE email = 'kumarraman26520@gmail.com'
+-- SELECT id,
+--        COALESCE(raw_user_meta_data->>'full_name', raw_app_meta_data->>'full_name', email)::text,
+--        true,
+--        now()
+-- FROM auth.users
+-- WHERE email = 'kumarraman26520@gmail.com'
 -- ON CONFLICT (id) DO UPDATE SET is_admin = true;
 
 -- ==================================================================
