@@ -20,18 +20,43 @@ export const BlogPage: React.FC<BlogPageProps> = ({ currentTheme }) => {
   const [copiedLink, setCopiedLink] = useState(false);
 
   const [posts, setPosts] = useState<BlogPost[]>([]);
+  const [loading, setLoading] = useState<boolean>(true);
+  const [selectedPost, setSelectedPost] = useState<BlogPost | null>(null);
 
   useEffect(() => {
     let mounted = true;
     (async () => {
-      const data = await fetchBlogPosts();
-      if (mounted && data) setPosts(data);
+      setLoading(true);
+      try {
+        if (slug) {
+          // If a slug is provided, fetch that specific post (prefer exact match)
+          const post = await fetchBlogPostBySlug(slug);
+          if (!mounted) return;
+          if (post) {
+            setSelectedPost(post);
+          } else {
+            // fallback: also fetch list in case of eventual consistency
+            const data = await fetchBlogPosts();
+            if (!mounted) return;
+            setPosts(data);
+            setSelectedPost(data.find((p) => p.slug === slug) ?? null);
+          }
+        } else {
+          const data = await fetchBlogPosts();
+          if (!mounted) return;
+          setPosts(data);
+          setSelectedPost(null);
+        }
+      } catch (e) {
+        console.warn('Error fetching blog data', e);
+      } finally {
+        if (mounted) setLoading(false);
+      }
     })();
     return () => { mounted = false; };
-  }, []);
+  }, [slug]);
 
-  const selectedPost = slug ? posts.find((post) => post.slug === slug) ?? null : null;
-  const isArticleView = Boolean(selectedPost);
+  const isArticleView = Boolean(slug);
 
   const categories = ['All', 'Web Design', 'Performance', 'SEO & Growth', '3D & WebGL'];
 
@@ -64,7 +89,7 @@ export const BlogPage: React.FC<BlogPageProps> = ({ currentTheme }) => {
         description="Read technical insights on Core Web Vitals speed optimization, custom React web design, 3D WebGL experiences, and SEO strategy by founder Ayan."
       />
 
-      {isArticleView && !selectedPost && (
+      {isArticleView && !selectedPost && !loading && (
         <div className="text-center space-y-6 py-20">
           <h1 className="text-4xl font-extrabold text-white">Article Not Found</h1>
           <p className="text-slate-300 text-base max-w-md mx-auto">
@@ -80,10 +105,16 @@ export const BlogPage: React.FC<BlogPageProps> = ({ currentTheme }) => {
         </div>
       )}
 
+      {isArticleView && loading && (
+        <div className="text-center py-20">
+          <div className="text-slate-300">Loading article...</div>
+        </div>
+      )}
+
       {!isArticleView && (
         <>
           {/* Header Banner */}
-      <div className="text-center space-y-4 max-w-3xl mx-auto">
+          <div className="text-center space-y-4 max-w-3xl mx-auto">
         <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white/5 border border-white/15 backdrop-blur-xl">
           <BookOpen className="w-4 h-4 text-cyan-300" />
           <span className="text-xs font-mono tracking-widest text-cyan-300 uppercase font-semibold">
