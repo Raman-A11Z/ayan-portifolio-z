@@ -77,9 +77,11 @@ export const BlogPage: React.FC<BlogPageProps> = ({ currentTheme }) => {
     setTimeout(() => setCopiedLink(false), 3000);
   };
 
-  const handleOpenArticle = (post: BlogPost) => {
+  const handleOpenArticle = (post: BlogPost, e?: React.MouseEvent) => {
+    // Allow ctrl/cmd/shift/alt to open in new tab; otherwise navigate within SPA
+    if (e && (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey)) return;
     soundFx.playClick();
-    window.open(`/blog/${post.slug}`, '_blank', 'noopener,noreferrer');
+    navigate(`/blog/${post.slug}`);
   };
 
   return (
@@ -229,13 +231,14 @@ export const BlogPage: React.FC<BlogPageProps> = ({ currentTheme }) => {
                     <span className="text-[11px] font-mono text-slate-300">{post.author.name}</span>
                   </div>
 
-                  <button
-                    onClick={() => handleOpenArticle(post)}
+                  <a
+                    href={`/blog/${post.slug}`}
+                    onClick={(e) => handleOpenArticle(post, e)}
                     className="text-xs font-mono font-bold text-amber-300 hover:text-amber-200 flex items-center gap-1"
                   >
                     <span>Read Full Article</span>
                     <ArrowRight className="w-3.5 h-3.5" />
-                  </button>
+                  </a>
                 </div>
               </article>
             ))}
